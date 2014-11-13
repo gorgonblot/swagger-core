@@ -176,6 +176,19 @@ class BoxedTypesTest extends FlatSpec with Matchers {
     modelStr should be("""{"id":"ListReply[BoxedTypesIssue31WithDataType]","description":"Standard reply containing a list of items and paging information","properties":{"items":{"type":"array","description":"List of requested items (in current page if paged)","items":{"$ref":"BoxedTypesIssue31WithDataType"}},"total":{"type":"integer","format":"int32","description":"Total number of items in the reply (across all pages if applicable)"},"nextPageToken":{"type":"string","description":"Identifier used to fetch the next page of results"},"offset":{"type":"integer","format":"int32","description":"Offset within the total count of results where this current items list starts"},"limit":{"type":"integer","format":"int32","description":"Limit on the number of items included in a single response page"}}}""")
     val jRef = jModel \ "properties" \ "items" \ "items" \ "$ref"
     jRef.extract[String] should equal (innerNameOpt.get)
+
+    val opStr = write(op)
+    val jOp = Serialization.read[JValue](opStr)
+    val jResponseType = jOp \ "type"
+    jResponseType.extract[String] should equal (op.responseClass)
+
+    val strippedApis = ModelUtil.stripPackages(apis)
+
+    val opStrStripped = write(strippedApis.head.operations.head)
+
+    val jOpStripped = Serialization.read[JValue](opStrStripped)
+    val jResponseTypeStripped = jOpStripped \ "type"
+    jResponseTypeStripped.extract[String] should equal (modelNameOpt.get)
   }
 }
 

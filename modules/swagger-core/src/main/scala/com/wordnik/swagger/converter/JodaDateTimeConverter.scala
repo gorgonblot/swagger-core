@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 class JodaDateTimeConverter extends ModelConverter with BaseConverter {
   private val LOGGER = LoggerFactory.getLogger(this.getClass)
 
-  def read(cls: Class[_], typeMap: Map[String, String]): Option[Model] = None
+  def read(cls: Class[_], typeMap: Map[String, String], modelNameOpt: Option[String] = None): Option[Model] = None
 
   // map DateTime to Date, which is serialized as such:
   //

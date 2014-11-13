@@ -23,7 +23,7 @@ object ModelInheritenceUtil {
         LOGGER.debug("got a base model from " + name)
         // get the baseModel
         val typeRef = m.baseModel.get
-        if(ModelUtil.shoudIncludeModel(typeRef)) {
+        if(ModelUtil.shouldIncludeModel(typeRef)) {
           try{
             // load baseModel
             LOGGER.debug("loading " + typeRef)

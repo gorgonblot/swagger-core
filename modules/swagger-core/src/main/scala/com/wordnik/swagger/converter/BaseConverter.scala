@@ -2,6 +2,7 @@ package com.wordnik.swagger.converter
 
 import com.wordnik.swagger.core.SwaggerSpec
 import com.wordnik.swagger.annotations.ApiModel
+import com.wordnik.swagger.core.util.ModelUtil
 
 trait BaseConverter {
   def toDescriptionOpt(cls: Class[_]): Option[String] = {
@@ -37,7 +38,11 @@ trait BaseConverter {
       if(SwaggerSpec.baseTypes.contains(lc)) lc
       else name
     }
-    else if (cls.getName.indexOf(".") < 0) cls.getName
+    else if (cls.getName.indexOf('.') < 0) cls.getName
     else cls.getSimpleName 
+  }
+
+  def toName(clsName: String): Option[String] = {
+    ModelUtil.toName(clsName)
   }
 }

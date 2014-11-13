@@ -41,7 +41,8 @@ class OverrideConverter
     }
   }
 
-  def read(cls: Class[_], typeMap: Map[String, String]): Option[Model] = {
-    overrides.getOrElse(cls.getName, None)
+  def read(cls: Class[_], typeMap: Map[String, String], modelNameOpt: Option[String] = None): Option[Model] = {
+    val modelName = modelNameOpt.fold(cls.getName)(n => n)
+    overrides.getOrElse(modelName, None)
   }
 }

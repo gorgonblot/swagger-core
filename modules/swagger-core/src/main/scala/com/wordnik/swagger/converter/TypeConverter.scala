@@ -7,7 +7,7 @@ import scala.collection.mutable.HashMap
 class TypeConverter extends ModelConverter with BaseConverter {
   val m = new HashMap[String, String]
 
-  def read(cls: Class[_], typeMap: Map[String, String]): Option[Model] = None
+  def read(cls: Class[_], typeMap: Map[String, String], modelNameOpt: Option[String] = None): Option[Model] = None
   def add(sourceClassName: String, destClassName: String) = {
     m += sourceClassName.toLowerCase -> destClassName
   }

@@ -32,15 +32,16 @@ object ModelConverters {
     converters -= c
   }
 
-  def read(cls: Class[_], t: Map[String, String] = Map.empty): Option[Model] = {
+  def read(cls: Class[_], t: Map[String, String] = Map.empty, modelNameOpt: Option[String] = None): Option[Model] = {
     val types = {
       if(t.isEmpty)typeMap
       else t
     }
+    val modelName = modelNameOpt.fold(cls.getName)(n => n)
     var model: Option[Model] = None
     val itr = converters.iterator
     while(model == None && itr.hasNext) {
-      itr.next.read(cls, types) match {
+      itr.next.read(cls, types, Some(modelName)) match {
         case Some(m) => {
           val filteredProperties = m.properties.filter(prop => skippedClasses.contains(prop._2.qualifiedType) == false)
           model = Some(m.copy(properties = filteredProperties))
@@ -51,9 +52,10 @@ object ModelConverters {
     model
   }
 
-  def readAll(cls: Class[_]): List[Model] = {
+  def readAll(cls: Class[_], modelNameOpt: Option[String] = None): List[Model] = {
+    val modelName = modelNameOpt.fold(cls.getName)(n => n)
     val output = new HashMap[String, Model]
-    var model = read(cls, typeMap)
+    var model = read(cls, typeMap, Some(modelName))
     val propertyNames = new HashSet[String]
 
     // add subTypes
@@ -61,7 +63,7 @@ object ModelConverters {
       try{
         LOGGER.debug("loading subtype " + typeRef)
         val cls = SwaggerContext.loadClass(typeRef)
-        read(cls, typeMap) match {
+        read(cls, typeMap, None) match {
           case Some(model) => output += cls.getName -> model
           case _ =>
         }
@@ -73,7 +75,7 @@ object ModelConverters {
 
     // add properties
     model.map(m => {
-      output += cls.getName -> m
+      output += modelName -> m
       val checkedNames = new HashSet[String]
       addRecursive(m, checkedNames, output)
     })
@@ -150,7 +152,7 @@ object ModelConverters {
 }
 
 trait ModelConverter {
-  def read(cls: Class[_], typeMap: Map[String, String]): Option[Model]
+  def read(cls: Class[_], typeMap: Map[String, String], modelNameOpt: Option[String] = None): Option[Model]
   def toName(cls: Class[_]): String
   def toDescriptionOpt(cls: Class[_]): Option[String]
 

@@ -115,14 +115,13 @@ object SwaggerSerializers extends Serializers {
       case "date"       => (name -> "string")  ~ ("format" -> "date")
       case "date-time"  => (name -> "string")  ~ ("format" -> "date-time")
       case _            => {
-        val ComplexTypeMatcher = "([a-zA-Z]*)\\[([a-zA-Z\\.\\-]*)\\].*".r
         `type` match {
-          case ComplexTypeMatcher(container, value) => 
+          case ModelUtil.ComplexTypeMatcher(container, value) if isSwaggerContainerType(container) =>
             toJsonSchemaContainer(container) ~ {
               ("items" -> {if(isSimpleType(value))
-                  toJsonSchema("type", value)
-                else
-                  toJsonSchema("$ref", value)})
+                toJsonSchema("type", value)
+              else
+                toJsonSchema("$ref", value)})
             }
           case _ => (name -> `type`)    ~ ("format" -> JNothing)
         }
@@ -143,6 +142,15 @@ object SwaggerSerializers extends Serializers {
     Set("int", "long", "float", "double", "string", "byte", "boolean", "Date", "date", "date-time", "array").contains(name)
   }
 
+  def isSwaggerContainerType(name: String): Boolean ={
+    name match {
+      case "List" => true
+      case "Array" => true
+      case "Set" => true
+      case _ => false
+    }
+  }
+  
   def toJsonSchemaType(prop: ModelProperty) = {
     // see if primitive
     if(SwaggerSpec.baseTypes.contains(prop.`type`)) {
